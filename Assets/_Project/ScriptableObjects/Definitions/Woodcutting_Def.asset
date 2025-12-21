@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7a5455a61db34c7b9684e0a9279202c, type: 3}
+  m_Name: Woodcutting_Def
+  m_EditorClassIdentifier: 
+  Type: 1
+  DisplayName: Woodcutting System
+  Description: Produces Wood
+  BaseCycleTime: 20
+  BaseProductionPerVillager: 5
+  OutputResource: 1
+  BaseMaxVillagers: 10
+  VillagersPerTier: 5
+  TierProductionMultiplier: 1.5
+  TierCycleTimeMultiplier: 0.9
+  InputRequirements: []
+  Icon: {fileID: -7156408823461671997, guid: 973599a597b1d49d5b96179b07d9d9d4, type: 3}
+  TierSprites: []

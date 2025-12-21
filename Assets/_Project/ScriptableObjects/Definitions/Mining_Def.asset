@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7a5455a61db34c7b9684e0a9279202c, type: 3}
+  m_Name: Mining_Def
+  m_EditorClassIdentifier: 
+  Type: 0
+  DisplayName: Mining System
+  Description: Produces Stone
+  BaseCycleTime: 20
+  BaseProductionPerVillager: 5
+  OutputResource: 0
+  BaseMaxVillagers: 10
+  VillagersPerTier: 5
+  TierProductionMultiplier: 1.5
+  TierCycleTimeMultiplier: 0.9
+  InputRequirements: []
+  Icon: {fileID: -8180375667250138304, guid: 3d52daa29d14c48678cc46b96ef33b62, type: 3}
+  TierSprites: []
