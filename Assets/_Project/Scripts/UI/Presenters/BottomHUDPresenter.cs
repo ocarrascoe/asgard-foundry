@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using AsgardFoundry.Core;
 using AsgardFoundry.Data;
 using AsgardFoundry.UI.Components;
@@ -19,6 +20,13 @@ namespace AsgardFoundry.UI.Presenters
         [SerializeField] private Toggle farmingTab;
         [SerializeField] private Toggle smithingTab;
         [SerializeField] private Toggle marketTab;
+
+        [Header("Villager Counts (per System)")]
+        [SerializeField] private TMP_Text miningCountText;
+        [SerializeField] private TMP_Text woodcuttingCountText;
+        [SerializeField] private TMP_Text farmingCountText;
+        [SerializeField] private TMP_Text smithingCountText;
+        [SerializeField] private TMP_Text marketCountText;
 
         [Header("Generate Button")]
         [SerializeField] private HoldButton generateButton;
@@ -69,6 +77,28 @@ namespace AsgardFoundry.UI.Presenters
         private void Update()
         {
             UpdateGenerateButtonVisual();
+            RefreshVillagerCounts();
+        }
+
+        private void RefreshVillagerCounts()
+        {
+            if (GameManager.Instance == null) return;
+            var state = GameManager.Instance.State;
+
+            UpdateCountText(miningCountText, "Miners", SystemType.Mining, state);
+            UpdateCountText(woodcuttingCountText, "Cutters", SystemType.Woodcutting, state);
+            UpdateCountText(farmingCountText, "Farmers", SystemType.Farming, state);
+            UpdateCountText(smithingCountText, "Smiths", SystemType.Smithing, state);
+            UpdateCountText(marketCountText, "Traders", SystemType.Market, state);
+        }
+
+        private void UpdateCountText(TMP_Text text, string label, SystemType type, GameState state)
+        {
+            if (text == null) return;
+            if (state.Systems.TryGetValue(type, out var system))
+            {
+                text.text = $"{label}: {system.VillagerCount}";
+            }
         }
 
         private void SetupTab(Toggle tab, SystemType system)
