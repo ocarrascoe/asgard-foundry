@@ -108,6 +108,7 @@ namespace AsgardFoundry.Core
                 {
                     ResourceType resource = GetResourceForSystem(system.Type);
                     State.AddResource(resource, produced);
+                    Debug.Log($"[Production] {system.Type}: +{produced:F1} {resource} (Villagers: {system.VillagerCount}, Progress: {system.AccumulatedProgress:F1}/{system.CycleTime})");
                     EventBus.ResourceChanged(resource, State.GetResource(resource));
                     EventBus.ProductionCycleComplete(system.Type, produced);
                 }
@@ -194,6 +195,17 @@ namespace AsgardFoundry.Core
             {
                 systemState.RegisterTap(tapValue);
             }
+        }
+
+        /// <summary>
+        /// Reset the game to a fresh state (delete save and reinitialize).
+        /// </summary>
+        public void ResetGame()
+        {
+            SaveManager.DeleteSave();
+            State = GameState.CreateNew();
+            Debug.Log("[GameManager] Game reset to new state");
+            EventBus.GameLoaded();
         }
 
         /// <summary>
