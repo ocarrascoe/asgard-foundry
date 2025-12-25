@@ -5,6 +5,85 @@ using System.Collections.Generic;
 
 public class TextureTools : EditorWindow
 {
+    [MenuItem("Asgard Foundry/Tools/Fix Icon Transparency (Circular Mask)")]
+    public static void FixCircularMask()
+    {
+        foreach (var obj in Selection.objects)
+        {
+            if (obj is Texture2D texture)
+            {
+                ApplyCircularMask(texture);
+            }
+        }
+        AssetDatabase.Refresh();
+    }
+
+    private static void ApplyCircularMask(Texture2D texture)
+    {
+        string path = AssetDatabase.GetAssetPath(texture);
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+
+        if (importer == null) return;
+
+        bool wasReadable = importer.isReadable;
+        if (!wasReadable || importer.textureCompression != TextureImporterCompression.Uncompressed)
+        {
+            importer.isReadable = true;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.SaveAndReimport();
+        }
+
+        Texture2D loadedTex = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+        Texture2D rwTex = new Texture2D(loadedTex.width, loadedTex.height, TextureFormat.RGBA32, false);
+        rwTex.SetPixels32(loadedTex.GetPixels32());
+        rwTex.Apply();
+
+        Color32[] pixels = rwTex.GetPixels32();
+        int w = rwTex.width;
+        int h = rwTex.height;
+        float centerX = w / 2f;
+        float centerY = h / 2f;
+        // Ultra Aggressive cut (42%)
+        float radiusSqr = (w * 0.42f) * (w * 0.42f);
+        float featherRadiusSqr = (w * 0.45f) * (w * 0.45f);
+
+        for (int y = 0; y < h; y++)
+        {
+            for (int x = 0; x < w; x++)
+            {
+                float dx = x - centerX;
+                float dy = y - centerY;
+                float distSqr = dx*dx + dy*dy;
+
+                // 1. Hard Cut: If strictly outside the circle, transparent
+                if (distSqr > radiusSqr)
+                {
+                    pixels[y * w + x] = new Color32(0, 0, 0, 0);
+                }
+                // 2. Color Kill: If inside but near edge AND white, kill it
+                // This prevents white halo pixels that survived the radius cut
+                else if (distSqr > radiusSqr * 0.8f) // Check outer rim of the remaining circle
+                {
+                    Color32 c = pixels[y * w + x];
+                    // If pixel is whitish (anti-aliasing residue)
+                    if (c.r > 200 && c.g > 200 && c.b > 200)
+                    {
+                        pixels[y * w + x] = new Color32(0, 0, 0, 0);
+                    }
+                }
+            }
+        }
+
+        rwTex.SetPixels32(pixels);
+        rwTex.Apply();
+
+        byte[] bytes = rwTex.EncodeToPNG();
+        File.WriteAllBytes(path, bytes);
+
+        Debug.Log($"[TextureTools] Applied Circular Mask to {path}");
+    }
+
     [MenuItem("Asgard Foundry/Tools/Fix Icon Transparency (Flood Fill)")]
     public static void FixTransparency()
     {
