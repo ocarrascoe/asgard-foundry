@@ -49,11 +49,11 @@ namespace AsgardFoundry.UI.Presenters
         {
             var state = GameManager.Instance.State;
 
-            UpdateResourceText(stoneText, "Stone", state.GetResource(ResourceType.Stone));
-            UpdateResourceText(woodText, "Wood", state.GetResource(ResourceType.Wood));
-            UpdateResourceText(foodText, "Food", state.GetResource(ResourceType.Food));
-            UpdateResourceText(metalText, "Metal", state.GetResource(ResourceType.Metal));
-            UpdateResourceText(goldText, "Gold", state.GetResource(ResourceType.Gold));
+            UpdateResourceText(stoneText, "", state.GetResource(ResourceType.Stone));
+            UpdateResourceText(woodText, "", state.GetResource(ResourceType.Wood));
+            UpdateResourceText(foodText, "", state.GetResource(ResourceType.Food));
+            UpdateResourceText(metalText, "", state.GetResource(ResourceType.Metal));
+            UpdateResourceText(goldText, "", state.GetResource(ResourceType.Gold));
         }
 
         private void RefreshStats()
@@ -81,7 +81,11 @@ namespace AsgardFoundry.UI.Presenters
         private void UpdateResourceText(TMP_Text text, string label, double amount)
         {
             if (text == null) return;
-            text.text = $"{label}: {FormatNumber(amount)}";
+            
+            if (string.IsNullOrEmpty(label))
+                text.text = FormatNumber(amount);
+            else
+                text.text = $"{label}: {FormatNumber(amount)}";
         }
 
         private void HandleResourceChanged(ResourceType type, double amount)

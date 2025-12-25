@@ -15,8 +15,8 @@ namespace AsgardFoundry.Data
         /// <summary>Current number of villagers assigned to this system.</summary>
         public int VillagerCount = 0;
 
-        /// <summary>Maximum villagers this system can hold (upgradable).</summary>
-        public int MaxVillagers = 10;
+        /// <summary>Maximum villagers this system can hold (deprecated/infinite).</summary>
+        public int MaxVillagers = int.MaxValue;
 
         /// <summary>Units produced per villager per cycle.</summary>
         public float ProductionPerVillager = 5f;
@@ -44,8 +44,9 @@ namespace AsgardFoundry.Data
 
         /// <summary>
         /// Whether this system has room for more villagers.
+        /// Always true now (no limit).
         /// </summary>
-        public bool CanAcceptVillager => VillagerCount < MaxVillagers;
+        public bool CanAcceptVillager => true;
 
         /// <summary>
         /// Add a villager to this system.
