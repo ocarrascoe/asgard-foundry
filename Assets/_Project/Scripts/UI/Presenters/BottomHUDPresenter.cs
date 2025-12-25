@@ -13,6 +13,19 @@ namespace AsgardFoundry.UI.Presenters
     /// </summary>
     public class BottomHUDPresenter : MonoBehaviour
     {
+        [Header("Mode Toggle")]
+        [SerializeField] private Button modeToggleButton;
+        [SerializeField] private GameObject normalModeGroup; // The container of the tabs
+        [SerializeField] private LayoutElement generateButtonLayout; // To resize the button
+        [SerializeField] private float expandedWidth = 800f; // Width when tabs are hidden
+        [SerializeField] private float normalWidth = 150f;   // Standard width (let layout handle it if -1)
+
+        [Header("Action Icons")]
+        [SerializeField] private Sprite miningIcon;
+        [SerializeField] private Sprite woodIcon;
+        [SerializeField] private Sprite farmingIcon;
+        [SerializeField] private Sprite industryIcon; // For smithing/market if needed
+
         [Header("Pre-Assignment Tabs")]
         [SerializeField] private ToggleGroup tabGroup;
         [SerializeField] private Toggle miningTab;
@@ -37,14 +50,16 @@ namespace AsgardFoundry.UI.Presenters
         [Header("Feedback")]
         [SerializeField] private Animator villagerSpawnAnimator;
 
+        private bool isExpandedMode = false;
+
         private void Start()
         {
             // Set up tab listeners
-            SetupTab(miningTab, SystemType.Mining);
-            SetupTab(woodcuttingTab, SystemType.Woodcutting);
-            SetupTab(farmingTab, SystemType.Farming);
-            SetupTab(smithingTab, SystemType.Smithing);
-            SetupTab(marketTab, SystemType.Market);
+            SetupTab(miningTab, SystemType.Mining, miningIcon);
+            SetupTab(woodcuttingTab, SystemType.Woodcutting, woodIcon);
+            SetupTab(farmingTab, SystemType.Farming, farmingIcon);
+            SetupTab(smithingTab, SystemType.Smithing, industryIcon);
+            SetupTab(marketTab, SystemType.Market, industryIcon);
 
             // Set up generate button
             if (generateButton != null)
@@ -55,6 +70,12 @@ namespace AsgardFoundry.UI.Presenters
             else
             {
                 Debug.LogError("[BottomHUDPresenter] Generate Button is NOT assigned! Drag it in the Inspector.");
+            }
+
+            // Set up Mode Toggle
+            if (modeToggleButton != null)
+            {
+                modeToggleButton.onClick.AddListener(OnToggleModeClicked);
             }
 
             // Subscribe to events
@@ -72,6 +93,25 @@ namespace AsgardFoundry.UI.Presenters
             EventBus.OnVillagerGenerated -= HandleVillagerGenerated;
             EventBus.OnEitrOverheated -= HandleOverheated;
             EventBus.OnEitrRecovered -= HandleRecovered;
+        }
+
+        private void OnToggleModeClicked()
+        {
+            isExpandedMode = !isExpandedMode;
+            UpdateModeVisuals();
+        }
+
+        private void UpdateModeVisuals()
+        {
+            if (normalModeGroup != null)
+                normalModeGroup.SetActive(!isExpandedMode);
+
+            if (generateButtonLayout != null)
+            {
+                generateButtonLayout.ignoreLayout = false; // Always part of layout
+                generateButtonLayout.preferredWidth = isExpandedMode ? expandedWidth : -1; // -1 means use auto/flexible
+                generateButtonLayout.flexibleWidth = isExpandedMode ? 1 : 0;
+            }
         }
 
         private void Update()
@@ -101,7 +141,7 @@ namespace AsgardFoundry.UI.Presenters
             }
         }
 
-        private void SetupTab(Toggle tab, SystemType system)
+        private void SetupTab(Toggle tab, SystemType system, Sprite icon)
         {
             if (tab == null) return;
 
@@ -110,11 +150,22 @@ namespace AsgardFoundry.UI.Presenters
                 if (isOn)
                 {
                     GameManager.Instance?.SetAssignmentTarget(system);
+                    UpdateActionIcon(icon);
                 }
             });
 
             // Disable tabs for locked systems
             UpdateTabInteractability(tab, system);
+        }
+
+        private void UpdateActionIcon(Sprite icon)
+        {
+            if (generateButtonImage != null && icon != null)
+            {
+                generateButtonImage.sprite = icon;
+                // Ensure the icon isn't distorted
+                generateButtonImage.preserveAspect = true;
+            }
         }
 
         private void UpdateTabInteractability(Toggle tab, SystemType system)
